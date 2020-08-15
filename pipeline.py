@@ -49,7 +49,7 @@ with open(INPUT, 'r') as f:
 
     me = list(matches)[0]
 
-    template_loader = j2.FileSystemLoader(searchpath=os.path.dirname(TEMPLATE))
+    template_loader = j2.FileSystemLoader(searchpath=os.path.dirname(TEMPLATE_PATH))
     template_env = j2.Environment(loader=template_loader)
 
     template = template_env.get_template(TEMPLATE_FILE)
