@@ -7,6 +7,6 @@
 {% for mr in mentors %}
 {{ mentor_profile(mr) }}
 
-^DATA^: {'score': 0 }
+^DATA^: {'score': 0, 'mrtoken': {{mr.token}}, 'metoken': {{me.token}} }
 ---
 {% endfor %}
