@@ -34,9 +34,9 @@ m_token: {{c.token}}
 
 [ {{c.linkedin }} ]
 
-*Works In*:
+*Overlap interests*:
 
-{{ c.workin }}
+{{ c.overlap }}
 
 *Expertise*
 

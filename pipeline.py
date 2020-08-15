@@ -19,10 +19,10 @@ def dei_score(c : Candidate) -> int:
         score += 1
     return score
 
-def interest_overlap_score(mentee: Candidate, mentor: Candidate):
+def interest_overlap(mentee: Candidate, mentor: Candidate):
     me = set([x.strip() for x in mentee.interestedin.split(',')])
     mr = set([x.strip() for x in mentor.workin.split(',')])
-    return len(me.intersection(mr))
+    return me.intersection(mr)
 
 def career_score(me: Candidate, mr: Candidate):
     categories = ["", "Less than a year", "One to three years", "Longer than three years"]
@@ -33,7 +33,7 @@ def career_score(me: Candidate, mr: Candidate):
 def match(me: Candidate, mr: Candidate) -> bool:
     if career_score(me, mr) < 0:
         return False
-    if interest_overlap_score(me, mr) < 1:
+    if len(interest_overlap(me, mr)) == 0:
         return False
     return True
 
@@ -42,16 +42,20 @@ with open(INPUT, 'r') as f:
     mentees = set([c for c in candidates if c.mentormentee in ['Being mentored', 'Both']])
     mentors = candidates - mentees
 
+    def enrich(me, mr):
+        d = mr._asdict()
+        d['overlap'] = ", ".join(interest_overlap(me, mr))
+        return d
     matches = {
-        me: [mr for mr in mentors if match(me, mr)]
+        me: [enrich(me, mr) for mr in mentors if match(me, mr)]
         for me in mentees
     }
-
-    me = list(matches)[0]
 
     template_loader = j2.FileSystemLoader(searchpath=os.path.dirname(TEMPLATE_PATH))
     template_env = j2.Environment(loader=template_loader)
 
     template = template_env.get_template(TEMPLATE_FILE)
+
+    me = list(mentees)[0]
     output = template.render({'me': me, 'mentors': matches[me]})
     print(output)
