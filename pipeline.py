@@ -1,5 +1,7 @@
 from collections import namedtuple
 from csv import DictReader
+
+
 INPUT = '/Users/mgordon/ctan/mentorship_july_2020/july_2020.csv'
 HEADER = ["a","firstname","lastname","email","linkedin","city","role","gender","pronouns","ethnicity","disability","accomodations","mentormentee","howmanyhours","howlong","workin","expertise","networking","interestedin","why","notes","submitted","token"]
 Candidate = namedtuple('candidate', HEADER)
@@ -25,15 +27,19 @@ def career_score(me: Candidate, mr: Candidate):
     me_long = categories.index(me.howlong)
     return mr_long - me_long
 
+def match(me: Candidate, mr: Candidate) -> bool:
+    if career_score(me, mr) < 0:
+        return False
+    if interest_overlap_score(me, mr) < 1:
+        return False
+    return True
 with open(INPUT, 'r') as f:
     candidates = set([Candidate(**v) for v in DictReader(f)])
     mentees = set([c for c in candidates if c.mentormentee in ['Being mentored', 'Both']])
     mentors = candidates - mentees
 
-    me = list(mentees)[0]
-    mr = list(mentors)[0]
-    print(me.howlong)
-    print(mr.howlong)
-    print(career_score(me, mr))
-
+    matches = {
+        me: [m for m in mentors if match(me, mr) for mr in mentors]
+        for me in mentees
+    }
 
