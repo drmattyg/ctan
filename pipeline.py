@@ -1,11 +1,15 @@
+import os
 from collections import namedtuple
 from csv import DictReader
-
-
+import jinja2 as j2
+import os
 INPUT = '/Users/mgordon/ctan/mentorship_july_2020/july_2020.csv'
+OUTDIR = '/Users/mgordon/ctan/mentorship_july_2020/'
 HEADER = ["a","firstname","lastname","email","linkedin","city","role","gender","pronouns","ethnicity","disability","accomodations","mentormentee","howmanyhours","howlong","workin","expertise","networking","interestedin","why","notes","submitted","token"]
 Candidate = namedtuple('candidate', HEADER)
-
+TEMPLATE = os.path.join(os.path.dirname(__file__), 'match_template.md')
+with open(TEMPLATE, 'r') as f:
+    TEMPLATE_STR = f.read()
 def dei_score(c : Candidate) -> int:
     score = 0
     if c.ethnicity != 'White or Caucasian':
@@ -33,13 +37,20 @@ def match(me: Candidate, mr: Candidate) -> bool:
     if interest_overlap_score(me, mr) < 1:
         return False
     return True
+
 with open(INPUT, 'r') as f:
     candidates = set([Candidate(**v) for v in DictReader(f)])
     mentees = set([c for c in candidates if c.mentormentee in ['Being mentored', 'Both']])
     mentors = candidates - mentees
 
     matches = {
-        me: [m for m in mentors if match(me, mr) for mr in mentors]
+        me: [mr for mr in mentors if match(me, mr)]
         for me in mentees
     }
 
+    me = list(matches)[0]
+
+
+    t = j2.Template(TEMPLATE_STR)
+    r = t.render({'me': me, 'mentors': matches[me]})
+    print(r)
