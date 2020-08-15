@@ -1,7 +1,4 @@
-*Mentee*
-{{me.firstname}} {{me.lastname}}
+**Mentee:**
 
-*Mentors*
-{% for mr in mentors %} 
-- {{ mr.firstname }} {{ mr.lastname }}
-{% endfor %}
+{{ from 'profile.md' import profile }}
+{{ profile(me) }}

@@ -7,7 +7,7 @@ INPUT = '/Users/mgordon/ctan/mentorship_july_2020/july_2020.csv'
 OUTDIR = '/Users/mgordon/ctan/mentorship_july_2020/'
 HEADER = ["a","firstname","lastname","email","linkedin","city","role","gender","pronouns","ethnicity","disability","accomodations","mentormentee","howmanyhours","howlong","workin","expertise","networking","interestedin","why","notes","submitted","token"]
 Candidate = namedtuple('candidate', HEADER)
-TEMPLATE = os.path.join(os.path.dirname(__file__), 'match_template.md')
+TEMPLATE = os.path.join(os.path.dirname(__file__), 'profile.md')
 with open(TEMPLATE, 'r') as f:
     TEMPLATE_STR = f.read()
 def dei_score(c : Candidate) -> int:
