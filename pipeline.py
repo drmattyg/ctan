@@ -2,12 +2,14 @@ from collections import namedtuple
 from csv import DictReader
 import jinja2 as j2
 import os
+import zipfile
 INPUT = '/Users/mgordon/ctan/mentorship_july_2020/july_2020.csv'
 OUTDIR = '/Users/mgordon/ctan/mentorship_july_2020/'
 HEADER = ["a","firstname","lastname","email","linkedin","city","role","gender","pronouns","ethnicity","disability","accomodations","mentormentee","howmanyhours","howlong","workin","expertise","networking","interestedin","why","notes","submitted","token"]
 Candidate = namedtuple('candidate', HEADER)
 TEMPLATE_FILE = "match_template.md"
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), TEMPLATE_FILE)
+REVIEWERS = ['matt', 'juliette']
 def dei_score(c : Candidate) -> int:
     score = 0
     if c.ethnicity != 'White or Caucasian':
@@ -36,6 +38,11 @@ def match(me: Candidate, mr: Candidate) -> bool:
         return False
     return True
 
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
 with open(INPUT, 'r') as f:
     candidates = set([Candidate(**v) for v in DictReader(f)])
     mentees = set([c for c in candidates if c.mentormentee in ['Being mentored', 'Both']])
@@ -59,3 +66,20 @@ with open(INPUT, 'r') as f:
         output = template.render({'me': me, 'mentors': matches[me]})
         with open(OUTDIR + me.token + '.md', 'w') as f:
             print(output, file=f)
+
+    mentee_count = len(mentees)
+    mentees_per = int(mentee_count/len(REVIEWERS))
+    mentees_to_assign = mentees.copy()
+    for r in REVIEWERS:
+        zf = zipfile.ZipFile(OUTDIR + '{}_applications.zip'.format(r), 'w')
+        if r == REVIEWERS[-1]:
+            n = len(mentees_to_assign)
+        else:
+            n = mentees_per
+        for i in range(mentees_per):
+            zf.write(OUTDIR + mentees_to_assign.pop().token + '.md')
+        zf.close()
+
+
+
+

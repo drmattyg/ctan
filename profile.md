@@ -1,7 +1,8 @@
 {% macro mentee_profile(c) -%}
 {{ c.firstname }} {{ c.lastname }}
 
-m_token: {{c.token}}
+*Location*
+{{ c.city }}
 
 [ {{c.linkedin }} ]
 
@@ -30,7 +31,8 @@ m_token: {{c.token}}
 {% macro mentor_profile(c) -%}
 {{ c.firstname }} {{ c.lastname }}
 
-m_token: {{c.token}}
+*Location*
+{{ c.city }}
 
 [ {{c.linkedin }} ]
 
