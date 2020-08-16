@@ -1,4 +1,3 @@
-import os
 from collections import namedtuple
 from csv import DictReader
 import jinja2 as j2
@@ -56,6 +55,7 @@ with open(INPUT, 'r') as f:
 
     template = template_env.get_template(TEMPLATE_FILE)
 
-    me = list(mentees)[0]
-    output = template.render({'me': me, 'mentors': matches[me]})
-    print(output)
+    for me in mentees:
+        output = template.render({'me': me, 'mentors': matches[me]})
+        with open(OUTDIR + me.token + '.md', 'w') as f:
+            print(output, file=f)
