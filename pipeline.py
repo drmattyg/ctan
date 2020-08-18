@@ -46,7 +46,7 @@ def chunks(lst, n):
 with open(INPUT, 'r') as f:
     candidates = set([Candidate(**v) for v in DictReader(f)])
     mentees = set([c for c in candidates if c.mentormentee in ['Being mentored', 'Both']])
-    mentors = candidates - mentees
+    mentors = set([c for c in candidates if c.mentormentee in ['Mentoring', 'Both']])
 
     def enrich(me, mr):
         d = mr._asdict()

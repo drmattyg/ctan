@@ -6,6 +6,9 @@
 
 [ {{c.linkedin }} ]
 
+*Job role*
+{{ c.role }}
+
 *Interests*:
 
 {{ c.interestedin }}
@@ -35,6 +38,9 @@
 {{ c.city }}
 
 [ {{c.linkedin }} ]
+
+*Job role*
+{{ c.role }}
 
 *Overlap interests*:
 
