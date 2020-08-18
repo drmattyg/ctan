@@ -7,6 +7,7 @@
 [ {{c.linkedin }} ]
 
 *Job role*
+
 {{ c.role }}
 
 *Interests*:
@@ -40,6 +41,7 @@
 [ {{c.linkedin }} ]
 
 *Job role*
+
 {{ c.role }}
 
 *Overlap interests*:

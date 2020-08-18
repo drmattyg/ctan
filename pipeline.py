@@ -43,7 +43,7 @@ def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
-with open(INPUT, 'r') as f:
+with open(INPUT, 'r', encoding='utf-8') as f:
     candidates = set([Candidate(**v) for v in DictReader(f)])
     mentees = set([c for c in candidates if c.mentormentee in ['Being mentored', 'Both']])
     mentors = set([c for c in candidates if c.mentormentee in ['Mentoring', 'Both']])
@@ -53,7 +53,7 @@ with open(INPUT, 'r') as f:
         d['overlap'] = ", ".join(interest_overlap(me, mr))
         return d
     matches = {
-        me: [enrich(me, mr) for mr in mentors if match(me, mr)]
+        me: [enrich(me, mr) for mr in mentors if match(me, mr) and mr != me]
         for me in mentees
     }
 
@@ -77,7 +77,8 @@ with open(INPUT, 'r') as f:
         else:
             n = mentees_per
         for i in range(mentees_per):
-            zf.write(OUTDIR + mentees_to_assign.pop().token + '.md')
+            fn =  mentees_to_assign.pop().token + '.md'
+            zf.write(OUTDIR + fn, fn)
         zf.close()
 
 
