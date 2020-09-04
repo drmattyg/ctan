@@ -40,15 +40,72 @@ def read_preferences(input_dir, dei):
 
     return _sort_and_strip(mentor_preferences), _sort_and_strip(mentee_preferences)
 
-def read_dei_and_capacity(input_file):
+def read_candidates(input_file):
     with open(input_file, 'r', encoding='utf-8') as f:
-        candidates = set([Candidate(**v) for v in DictReader(f)])
+        return set([Candidate(**v) for v in DictReader(f)])
+
+def read_dei_and_capacity(input_file):
+    candidates = read_candidates(input_file)
     dei = {c.token: dei_score(c) for c in candidates if is_mentee(c)}
-    capacity = {c.token: c.howmanyhours for c in candidates if is_mentor(c)}
+    capacity = {c.token: int(c.howmanyhours) for c in candidates if is_mentor(c)}
+
+    # munge
+    capacity['mattgordon'] = 3
     return dei, capacity
+
+class Match:
+    def __init__(self, mentee, score):
+        self.mentee = mentee
+        self.score = score
+
+class MeMatch:
+    def __init__(self, mentee, mentor_pref, dei):
+        self.mentee = mentee
+        self.dei = dei
+        self.mentor_pref = mentor_pref
+        self.proposed = set()
+        self.match = None
+
+class MrMatch:
+    def __init__(self, mentor, mentee_pref, capacity):
+        self.mentor = mentor
+        self.mentee_pref = mentee_pref
+        self.matches = set()
+        self.capacity = capacity
+
+    def propose(self, match : MeMatch):
+        match.proposed.add(self.mentor)
+        if self.capacity < len(self.matches):
+            self.matches.add(match)
+            return
+        new_matches = self.matches.copy()
+        for m in self.matches:
+            if match.dei > m.dei:
+                new_matches.remove(m)
+                new_matches.add(match)
+                return
+
+
+
+
+def match(me_pref, mr_pref, cap):
+    pass
 
 
 dei, cap = read_dei_and_capacity(INPUT)
 mr_pref, me_pref = read_preferences(INPUT_DIRECTORIES[0], dei)
 g = HospitalResident.create_from_dictionaries(me_pref, mr_pref, cap)
-matching = g.solve()
+cdict = {c.token: c for c in read_candidates(INPUT)}
+cdict['mattgordon'] = "Matt Gordon"
+matching = g.solve(optimal='hospital')
+assert g.check_stability()
+assert g.check_validity()
+#print([x for x in matching.items() if '6cjmsu945gzrl210d6ur8d6cjmsux44k' in x[1]])
+sampenrose = 'wqqmq9vk16cg0tbfku46hz4wqqmq9zc7'
+
+def _name(c):
+    if isinstance(c, str):
+        return c
+    return c.firstname + " " + c.lastname
+d = {_name(cdict[k.name]):  [_name(cdict[x.name]) for x in v] for k, v in matching.items()}
+print(d)
