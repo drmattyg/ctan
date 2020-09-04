@@ -124,7 +124,7 @@ class Matcher:
     @property
     def solution(self):
         # mentor/mentees
-        return {k: v.matches for k, v in self.mrmatch}
+        return {k: [x.mentee for x in v.matches] for k, v in self.mrmatch.items()}
 
     @property
     def unmatched_mentees(self):

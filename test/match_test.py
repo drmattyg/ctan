@@ -18,7 +18,8 @@ class TestMatch(unittest.TestCase):
         self.assertEqual(m.mematch['d'].next_proposal(), 'B')
         self.assertTrue(m.can_match())
         m.solve()
-
+        print(m.solution)
+        print(m.unmatched_mentees)
 
 
 if __name__ == '__main__':
