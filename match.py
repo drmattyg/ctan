@@ -58,12 +58,17 @@ class Match:
         self.score = score
 
 class MeMatch:
-    def __init__(self, mentee, mentee_pref, dei):
+    def __init__(self, mentee, prefs, dei):
         self.mentee = mentee
         self.dei = dei
-        self.mentee_pref = mentee_pref
+        self.prefs = sorted(prefs, key=lambda x: x[1])
+        self.prefs.reverse()
         self.proposed = set()
         self.mrmatch = None
+
+    def next_proposal(self):
+        pass
+
 
 class MrMatch:
     def __init__(self, mentor, capacity):
@@ -95,12 +100,13 @@ class Matcher:
     def unmatched_me(self):
         return {k: v for k, v in self.mematch.items() if v.mrmatch is None}
 
+    def solve(self):
+        unmatched = self.unmatched_me()
 
 
 
 
-
-# dei, cap = read_dei_and_capacity(INPUT)
+    # dei, cap = read_dei_and_capacity(INPUT)
 # mr_pref, me_pref = read_preferences(INPUT_DIRECTORIES[0], dei)
 # g = HospitalResident.create_from_dictionaries(me_pref, mr_pref, cap)
 # cdict = {c.token: c for c in read_candidates(INPUT)}

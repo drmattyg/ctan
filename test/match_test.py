@@ -14,6 +14,9 @@ class TestMatch(unittest.TestCase):
 
         m = Matcher(mepref, capacity, dei)
         self.assertSetEqual(set(m.unmatched_me().keys()), set(m.mematch.keys()))
+        self.assertListEqual(m.mematch['d'].prefs, [('B', 2), ('A', 1)])
+
+
 
 
 if __name__ == '__main__':
