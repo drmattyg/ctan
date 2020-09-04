@@ -63,11 +63,14 @@ class MeMatch:
         self.dei = dei
         self.prefs = sorted(prefs, key=lambda x: x[1])
         self.prefs.reverse()
-        self.proposed = set()
+
+        # turn this into a dict of capacities?  Or read capacity further down?
+        # move proposed/capacity into Matcher?
+        self.proposed = defaultdict(int) # number of times we've proposed
         self.mrmatch = None
 
-    def next_proposal(self):
-        d = [mr for mr in self.prefs if mr[0] not in self.proposed]
+    def next_proposal(self, mrmatch):
+        d = [mr for mr in self.prefs if mrmatch[mr[0]].capacity > self.proposed[mr[0]]]
         if not d:
             return None
         else:
@@ -80,7 +83,7 @@ class MrMatch:
         self.capacity = capacity
 
     def propose(self, match : MeMatch):
-        match.proposed.add(self.mentor)
+        match.proposed[self.mentor] += 1
         if self.capacity > len(self.matches):
             self.matches.add(match)
             match.mrmatch = self
@@ -101,16 +104,16 @@ class Matcher:
         self.mrmatch = {k: MrMatch(k, cap) for k, cap in capacity.items()}
 
     def unmatched_me(self):
-        return {k: v for k, v in self.mematch.items() if v.mrmatch is None and v.next_proposal() is not None}
+        return {k: v for k, v in self.mematch.items() if v.mrmatch is None and v.next_proposal(self.mrmatch) is not None}
 
     def solve_iter(self):
         unmatched = self.unmatched_me()
         for me in unmatched.values():
-            self.mrmatch[me.next_proposal()].propose(me)
+            self.mrmatch[me.next_proposal(self.mrmatch)].propose(me)
 
     def can_match(self):
         for me in self.unmatched_me().values():
-            if me.next_proposal() is not None:
+            if me.next_proposal(self.mrmatch) is not None:
                 return True
         return False
 
