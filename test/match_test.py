@@ -13,6 +13,7 @@ class TestMatch(unittest.TestCase):
         dei = {'a': 1, 'b': 2, 'c': 3, 'd': 1}
 
         m = Matcher(mepref, capacity, dei)
+        self.assertSetEqual(set(m.unmatched_me().keys()), set(m.mematch.keys()))
 
 
 if __name__ == '__main__':
