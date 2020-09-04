@@ -43,43 +43,49 @@ def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
-with open(INPUT, 'r', encoding='utf-8') as f:
-    candidates = set([Candidate(**v) for v in DictReader(f)])
-    mentees = set([c for c in candidates if c.mentormentee in ['Being mentored', 'Both']])
-    mentors = set([c for c in candidates if c.mentormentee in ['Mentoring', 'Both']])
+def is_mentee(c: Candidate):
+    return c.mentormentee in ['Being mentored', 'Both']
 
-    def enrich(me, mr):
-        d = mr._asdict()
-        d['overlap'] = ", ".join(interest_overlap(me, mr))
-        return d
-    matches = {
-        me: [enrich(me, mr) for mr in mentors if match(me, mr) and mr != me]
-        for me in mentees
-    }
+def is_mentor(c: Candidate):
+    return c.mentormentee in ['Mentoring', 'Both']
+if __name__ == '__main__':
+        with open(INPUT, 'r', encoding='utf-8') as f:
+            candidates = set([Candidate(**v) for v in DictReader(f)])
+        mentees = set([c for c in candidates if is_mentee(c)])
+        mentors = set([c for c in candidates if is_mentor(c)])
 
-    template_loader = j2.FileSystemLoader(searchpath=os.path.dirname(TEMPLATE_PATH))
-    template_env = j2.Environment(loader=template_loader)
+        def enrich(me, mr):
+            d = mr._asdict()
+            d['overlap'] = ", ".join(interest_overlap(me, mr))
+            return d
+        matches = {
+            me: [enrich(me, mr) for mr in mentors if match(me, mr) and mr != me]
+            for me in mentees
+        }
 
-    template = template_env.get_template(TEMPLATE_FILE)
+        template_loader = j2.FileSystemLoader(searchpath=os.path.dirname(TEMPLATE_PATH))
+        template_env = j2.Environment(loader=template_loader)
 
-    for me in mentees:
-        output = template.render({'me': me, 'mentors': matches[me]})
-        with open(OUTDIR + me.token + '.md', 'w') as f:
-            print(output, file=f)
+        template = template_env.get_template(TEMPLATE_FILE)
 
-    mentee_count = len(mentees)
-    mentees_per = int(mentee_count/len(REVIEWERS))
-    mentees_to_assign = mentees.copy()
-    for r in REVIEWERS:
-        zf = zipfile.ZipFile(OUTDIR + '{}_applications.zip'.format(r), 'w')
-        if r == REVIEWERS[-1]:
-            n = len(mentees_to_assign)
-        else:
-            n = mentees_per
-        for i in range(mentees_per):
-            fn =  mentees_to_assign.pop().token + '.md'
-            zf.write(OUTDIR + fn, fn)
-        zf.close()
+        for me in mentees:
+            output = template.render({'me': me, 'mentors': matches[me]})
+            with open(OUTDIR + me.token + '.md', 'w') as f:
+                print(output, file=f)
+
+        mentee_count = len(mentees)
+        mentees_per = int(mentee_count/len(REVIEWERS))
+        mentees_to_assign = mentees.copy()
+        for r in REVIEWERS:
+            zf = zipfile.ZipFile(OUTDIR + '{}_applications.zip'.format(r), 'w')
+            if r == REVIEWERS[-1]:
+                n = len(mentees_to_assign)
+            else:
+                n = mentees_per
+            for i in range(mentees_per):
+                fn =  mentees_to_assign.pop().token + '.md'
+                zf.write(OUTDIR + fn, fn)
+            zf.close()
 
 
 
