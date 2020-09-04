@@ -28,17 +28,16 @@ def read_preferences(input_dir, dei):
     # now iterate over the dict items and sort by the score column (2nd element of the tuple)
     # this will order the preferences: mentees rank mentors by their match score and mentors preference mentees
     # by their dei score
-    # after they've been ordered, we can remove the scores and return just two dicts of sorted preferences
-    def _sort_and_strip(d):
+    def _sort(d):
         r = dict()
         for k, lst in d.items():
             s = sorted(lst, key=lambda x: x[1])
             # sort highest to lowest
             s.reverse()
-            r[k] = [x[0] for x in s]
+            r[k] = s
         return r
 
-    return _sort_and_strip(mentor_preferences), _sort_and_strip(mentee_preferences)
+    return _sort(mentor_preferences), _sort(mentee_preferences)
 
 def read_candidates(input_file):
     with open(input_file, 'r', encoding='utf-8') as f:
@@ -64,7 +63,7 @@ class MeMatch:
         self.dei = dei
         self.mentor_pref = mentor_pref
         self.proposed = set()
-        self.match = None
+        self.mrmatch = None
 
 class MrMatch:
     def __init__(self, mentor, mentee_pref, capacity):
@@ -77,19 +76,23 @@ class MrMatch:
         match.proposed.add(self.mentor)
         if self.capacity < len(self.matches):
             self.matches.add(match)
+            match.mrmatch = self
             return
         new_matches = self.matches.copy()
         for m in self.matches:
             if match.dei > m.dei:
                 new_matches.remove(m)
+                m.mrmatch = None
                 new_matches.add(match)
-                return
+                match.mrmatch = self
+        self.matches = new_matches
 
 
 
 
 def match(me_pref, mr_pref, cap):
-    pass
+    mrmatch = {k: MrMatch(k, v, cap[k]) for k, v in mr_pref.items()}
+    unmatched_me = {k: MeMatch(k, v, dei[k]) for k, v in me_pref.items()}
 
 
 dei, cap = read_dei_and_capacity(INPUT)
