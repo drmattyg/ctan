@@ -58,17 +58,16 @@ class Match:
         self.score = score
 
 class MeMatch:
-    def __init__(self, mentee, mentor_pref, dei):
+    def __init__(self, mentee, mentee_pref, dei):
         self.mentee = mentee
         self.dei = dei
-        self.mentor_pref = mentor_pref
+        self.mentee_pref = mentee_pref
         self.proposed = set()
         self.mrmatch = None
 
 class MrMatch:
-    def __init__(self, mentor, mentee_pref, capacity):
+    def __init__(self, mentor, capacity):
         self.mentor = mentor
-        self.mentee_pref = mentee_pref
         self.matches = set()
         self.capacity = capacity
 
@@ -88,27 +87,33 @@ class MrMatch:
         self.matches = new_matches
 
 
+class Matcher:
+    def __init__(self, me_pref, capacity, dei):
+        self.mematch = {k: MeMatch(k, v, dei[k]) for k, v in me_pref.items()}
+        self.mrmatch = {k: MrMatch(k, cap) for k, cap in capacity.items()}
+
+    def unmatched_me(self):
+        return {k: v for k, v in self.mematch.items() if v.mrmatch is None}
 
 
-def match(me_pref, mr_pref, cap, dei):
-    mrmatch = {k: MrMatch(k, v, cap[k]) for k, v in mr_pref.items()}
-    unmatched_me = {k: MeMatch(k, v, dei[k]) for k, v in me_pref.items()}
 
 
-dei, cap = read_dei_and_capacity(INPUT)
-mr_pref, me_pref = read_preferences(INPUT_DIRECTORIES[0], dei)
-g = HospitalResident.create_from_dictionaries(me_pref, mr_pref, cap)
-cdict = {c.token: c for c in read_candidates(INPUT)}
-cdict['mattgordon'] = "Matt Gordon"
-matching = g.solve(optimal='hospital')
-assert g.check_stability()
-assert g.check_validity()
-#print([x for x in matching.items() if '6cjmsu945gzrl210d6ur8d6cjmsux44k' in x[1]])
-sampenrose = 'wqqmq9vk16cg0tbfku46hz4wqqmq9zc7'
 
-def _name(c):
-    if isinstance(c, str):
-        return c
-    return c.firstname + " " + c.lastname
-d = {_name(cdict[k.name]):  [_name(cdict[x.name]) for x in v] for k, v in matching.items()}
-print(d)
+
+# dei, cap = read_dei_and_capacity(INPUT)
+# mr_pref, me_pref = read_preferences(INPUT_DIRECTORIES[0], dei)
+# g = HospitalResident.create_from_dictionaries(me_pref, mr_pref, cap)
+# cdict = {c.token: c for c in read_candidates(INPUT)}
+# cdict['mattgordon'] = "Matt Gordon"
+# matching = g.solve(optimal='hospital')
+# assert g.check_stability()
+# assert g.check_validity()
+# #print([x for x in matching.items() if '6cjmsu945gzrl210d6ur8d6cjmsux44k' in x[1]])
+# sampenrose = 'wqqmq9vk16cg0tbfku46hz4wqqmq9zc7'
+#
+# def _name(c):
+#     if isinstance(c, str):
+#         return c
+#     return c.firstname + " " + c.lastname
+# d = {_name(cdict[k.name]):  [_name(cdict[x.name]) for x in v] for k, v in matching.items()}
+# print(d)
