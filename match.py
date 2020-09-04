@@ -67,7 +67,7 @@ class MeMatch:
         self.mrmatch = None
 
     def next_proposal(self):
-        d = [mr for mr in self.prefs if mr not in self.proposed]
+        d = [mr for mr in self.prefs if mr[0] not in self.proposed]
         if not d:
             return None
         else:
@@ -81,7 +81,7 @@ class MrMatch:
 
     def propose(self, match : MeMatch):
         match.proposed.add(self.mentor)
-        if self.capacity < len(self.matches):
+        if self.capacity > len(self.matches):
             self.matches.add(match)
             match.mrmatch = self
             return
@@ -101,7 +101,7 @@ class Matcher:
         self.mrmatch = {k: MrMatch(k, cap) for k, cap in capacity.items()}
 
     def unmatched_me(self):
-        return {k: v for k, v in self.mematch.items() if v.mrmatch is None}
+        return {k: v for k, v in self.mematch.items() if v.mrmatch is None and v.next_proposal() is not None}
 
     def solve_iter(self):
         unmatched = self.unmatched_me()
@@ -119,6 +119,18 @@ class Matcher:
         while(self.can_match()):
             print('round {}: {} unmatched'.format(i, len(self.unmatched_me())))
             self.solve_iter()
+            i += 1
+
+    @property
+    def solution(self):
+        # mentor/mentees
+        return {k: v.matches for k, v in self.mrmatch}
+
+    @property
+    def unmatched_mentees(self):
+        return {k for k, v in self.mematch.items() if v.mrmatch is None}
+
+
 
 
 
