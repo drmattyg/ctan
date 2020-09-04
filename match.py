@@ -67,8 +67,11 @@ class MeMatch:
         self.mrmatch = None
 
     def next_proposal(self):
-        pass
-
+        d = [mr for mr in self.prefs if mr not in self.proposed]
+        if not d:
+            return None
+        else:
+            return d[0][0]
 
 class MrMatch:
     def __init__(self, mentor, capacity):
@@ -100,8 +103,23 @@ class Matcher:
     def unmatched_me(self):
         return {k: v for k, v in self.mematch.items() if v.mrmatch is None}
 
-    def solve(self):
+    def solve_iter(self):
         unmatched = self.unmatched_me()
+        for me in unmatched.values():
+            self.mrmatch[me.next_proposal()].propose(me)
+
+    def can_match(self):
+        for me in self.unmatched_me().values():
+            if me.next_proposal() is not None:
+                return True
+        return False
+
+    def solve(self):
+        i = 1
+        while(self.can_match()):
+            print('round {}: {} unmatched'.format(i, len(self.unmatched_me())))
+            self.solve_iter()
+
 
 
 
