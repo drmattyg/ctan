@@ -2,9 +2,8 @@ import json
 import re
 from pathlib import Path
 from collections import defaultdict
-from pipeline import Candidate, dei_score, is_mentee, is_mentor, INPUT
+from pipeline import Candidate, dei_score, is_mentee, is_mentor, INPUT, read_candidates
 from csv import DictReader
-from matching.games import HospitalResident
 INPUT_DIRECTORIES = ['/Users/mgordon/ctan/mentorship_july_2020/matt_apps']
 DATA_RE = re.compile('\^DATA\^:\s?(.*)')
 
@@ -38,10 +37,6 @@ def read_preferences(input_dir, dei):
         return r
 
     return _sort(mentor_preferences), _sort(mentee_preferences)
-
-def read_candidates(input_file):
-    with open(input_file, 'r', encoding='utf-8') as f:
-        return set([Candidate(**v) for v in DictReader(f)])
 
 def read_dei_and_capacity(input_file):
     candidates = read_candidates(input_file)
@@ -133,23 +128,27 @@ class Matcher:
     def unmatched_mentees(self):
         return {k for k, v in self.mematch.items() if v.mrmatch is None}
 
+MATCH_HEADER = ['mr_first', 'mr_last', 'mr_email', 'me_first', 'me_last', 'me_email']
+def solution_to_csv(solution, candidates, file=None):
+
+    cdict = {c.token: c for c in candidates}
+    print(",".join(MATCH_HEADER), file=file)
+    for mrk, mentees in solution.items():
+        for mek in mentees:
+            mec = cdict[mek]
+            mrc = cdict[mrk]
+            print("{}, {}, {}, {}, {}, {}".format(mrc.firstname, mrc.lastname, mrc.email, mec.firstname, mec.lastname, mec.email), file=file)
 
 
 
 
+if __name__ == '__main__':
+    dei, cap = read_dei_and_capacity(INPUT)
+    mr_pref, me_pref = read_preferences(INPUT_DIRECTORIES[0], dei)
+    m = Matcher(me_pref, cap, dei)
+    m.solve()
+    solution_to_csv(m.solution, read_candidates())
 
-
-    # dei, cap = read_dei_and_capacity(INPUT)
-# mr_pref, me_pref = read_preferences(INPUT_DIRECTORIES[0], dei)
-# g = HospitalResident.create_from_dictionaries(me_pref, mr_pref, cap)
-# cdict = {c.token: c for c in read_candidates(INPUT)}
-# cdict['mattgordon'] = "Matt Gordon"
-# matching = g.solve(optimal='hospital')
-# assert g.check_stability()
-# assert g.check_validity()
-# #print([x for x in matching.items() if '6cjmsu945gzrl210d6ur8d6cjmsux44k' in x[1]])
-# sampenrose = 'wqqmq9vk16cg0tbfku46hz4wqqmq9zc7'
-#
 # def _name(c):
 #     if isinstance(c, str):
 #         return c
