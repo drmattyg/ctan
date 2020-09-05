@@ -90,6 +90,7 @@ class MrMatch:
                 m.mrmatch = None
                 new_matches.add(match)
                 match.mrmatch = self
+                break
         self.matches = new_matches
 
 
