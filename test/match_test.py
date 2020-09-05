@@ -18,9 +18,15 @@ class TestMatch(unittest.TestCase):
         self.assertEqual(m.mematch['d'].next_proposal(m.mrmatch), 'B')
         self.assertTrue(m.can_match())
         m.solve()
-        print(m.solution)
-        print(m.unmatched_mentees)
+        self.assertSetEqual(m.unmatched_mentees, {'a'})
+        self.assertDictEqual(m.solution, {'A': {'c', 'b'}, 'B': {'d'}})
 
+        # raise a's preference for B above d's
+        mepref['a'][1] = ('B', 3)
+        m2 = Matcher(mepref, capacity, dei)
+        m2.solve()
+        self.assertSetEqual(m2.unmatched_mentees, {'d'})
+        self.assertDictEqual(m2.solution, {'A': {'c', 'b'}, 'B': {'a'}})
 
 if __name__ == '__main__':
     unittest.main()
