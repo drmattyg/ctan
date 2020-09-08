@@ -52,7 +52,10 @@ def is_mentor(c: Candidate):
 
 def read_candidates(input=INPUT):
     with open(input, 'r', encoding='utf-8') as f:
-        return set([Candidate(**v) for v in DictReader(f)])
+        d = set()
+        for v in DictReader(f):
+            d.add(Candidate(**v))
+        return d
 
 
 if __name__ == '__main__':

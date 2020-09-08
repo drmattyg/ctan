@@ -4,7 +4,7 @@ from pathlib import Path
 from collections import defaultdict
 from pipeline import Candidate, dei_score, is_mentee, is_mentor, INPUT, read_candidates
 from csv import DictReader
-INPUT_DIRECTORIES = ['/Users/mgordon/ctan/mentorship_july_2020/matt_apps']
+INPUT_DIRECTORIES = ['/Users/mgordon/ctan/mentorship_july_2020/all_reviewed_apps']
 DATA_RE = re.compile('\^DATA\^:\s?(.*)')
 
 def read_preferences(input_dir, dei):
@@ -116,7 +116,7 @@ class Matcher:
     def solve(self):
         i = 1
         while(self.can_match()):
-            print('round {}: {} unmatched'.format(i, len(self.unmatched_me())))
+#            print('round {}: {} unmatched'.format(i, len(self.unmatched_me())))
             self.solve_iter()
             i += 1
 
@@ -128,6 +128,10 @@ class Matcher:
     @property
     def unmatched_mentees(self):
         return {k for k, v in self.mematch.items() if v.mrmatch is None}
+
+    @property
+    def unmatched_mentors(self):
+        return {k for k, v in self.solution.items() if not v}
 
 MATCH_HEADER = ['mr_first', 'mr_last', 'mr_email', 'me_first', 'me_last', 'me_email']
 def solution_to_csv(solution, candidates, file=None):
@@ -141,6 +145,12 @@ def solution_to_csv(solution, candidates, file=None):
             print("{}, {}, {}, {}, {}, {}".format(mrc.firstname, mrc.lastname, mrc.email, mec.firstname, mec.lastname, mec.email), file=file)
 
 
+def print_unmatched(um, candidates):
+    cdict = {c.token: c for c in candidates}
+    print('first, last, email')
+    for k in um:
+      print('{}, {}, {}'.format(cdict[k].firstname, cdict[k].lastname, cdict[k].email))
+
 
 
 if __name__ == '__main__':
@@ -148,7 +158,10 @@ if __name__ == '__main__':
     mr_pref, me_pref = read_preferences(INPUT_DIRECTORIES[0], dei)
     m = Matcher(me_pref, cap, dei)
     m.solve()
-    solution_to_csv(m.solution, read_candidates())
+    c = read_candidates()
+    #solution_to_csv(m.solution, c)
+    #print_unmatched(m.unmatched_mentees, c)
+    print_unmatched(m.unmatched_mentors, c)
 
 # def _name(c):
 #     if isinstance(c, str):
